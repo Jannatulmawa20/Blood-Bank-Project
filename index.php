@@ -1,160 +1,91 @@
 <?php
-error_reporting(0);
+session_start();
 include('includes/config.php');
+if(isset($_POST['login']))
+{
+$email=$_POST['username'];
+$password=md5($_POST['password']);
+$sql ="SELECT UserName,Password FROM admin WHERE UserName=:email and Password=:password";
+$query= $dbh -> prepare($sql);
+$query-> bindParam(':email', $email, PDO::PARAM_STR); 
+$query-> bindParam(':password', $password, PDO::PARAM_STR);
+$query-> execute();
+$results=$query->fetchAll(PDO::FETCH_OBJ);
+if($query->rowCount() > 0)
+{
+$_SESSION['alogin']=$_POST['username'];
+echo "<script type='text/javascript'> document.location = 'change-password.php'; </script>";
+} else{
+  
+  echo "<script>alert('Invalid Details');</script>";
+
+}
+
+}
+
 ?>
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en" class="no-js">
 
 <head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+	<meta name="description" content="">
+	<meta name="author" content="">
 
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-
-    <title> BloodBank & Donor Management System </title>
-    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-    <link href="css/modern-business.css" rel="stylesheet">
-    <style>
-    .navbar-toggler {
-        z-index: 1;
-    }
-    
-    @media (max-width: 576px) {
-        nav > .container {
-            width: 100%;
-        }
-    }
-    .carousel-item.active,
-    .carousel-item-next,
-    .carousel-item-prev {
-        display: block;
-    }
-    </style>
-
+	<title>BloodBank & Donor Management System | Admin Login</title>
+	<link rel="stylesheet" href="css/font-awesome.min.css">
+	<link rel="stylesheet" href="css/bootstrap.min.css">
+	<link rel="stylesheet" href="css/dataTables.bootstrap.min.css">
+	<link rel="stylesheet" href="css/bootstrap-social.css">
+	<link rel="stylesheet" href="css/bootstrap-select.css">
+	<link rel="stylesheet" href="css/fileinput.min.css">
+	<link rel="stylesheet" href="css/awesome-bootstrap-checkbox.css">
+	<link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
+	
+	<div class="login-page bk-img" style="background-image: url(img/banner.png);">
+		<div class="form-content">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-6 col-md-offset-3">
+						<h1 class="text-center text-bold text-light mt-4x">BloodBank & Donor Management System Sign in</h1>
+						<div class="well row pt-2x pb-3x bk-light">
+							<div class="col-md-8 col-md-offset-2">
+								<form method="post">
 
-    <!-- Navigation -->
-<?php include('includes/header.php');?>
-<?php include('includes/slider.php');?>
-   
-    <!-- Page Content -->
-    <div class="container">
+									<label for="" class="text-uppercase text-sm">Your Username </label>
+									<input type="text" placeholder="Username" name="username" class="form-control mb">
 
-        <h1 class="my-4"> <b> Welcome to BloodBank & Donor Management System</b></h1>
+									<label for="" class="text-uppercase text-sm">Password</label>
+									<input type="password" placeholder="Password" name="password" class="form-control mb">
 
-        <br> <br>
-        <div class="row">
-            <div class="col-lg-4 mb-4">
-                <div class="card">
-                    <h4 class="card-header">The need for blood</h4>
-                   
-                        <p class="card-text" style="padding-left:2%">Blood brings oxygen and nutrients to all the parts of the body so they can keep working. Blood carries carbon dioxide and other waste materials to the lungs, kidneys, and digestive system to be removed from the body. Blood also fights infections, and carries hormones around the body. </p>
-                </div>
-            </div>
-            <div class="col-lg-4 mb-4">
-                <div class="card">
-                    <h4 class="card-header">Blood Tips</h4>
-                   
-                        <p class="card-text" style="padding-left:2%">It's always a good idea to be fully hydrated before giving blood. We recommend you drink at least three glasses of water in the three hours before donation and also have another 500ml drink of water </p>
-                </div>
-            </div>
-            <div class="col-lg-4 mb-4">
-                <div class="card">
-                    <h4 class="card-header">Who you could Help</h4>
-                   
-                        <p class="card-text" style="padding-left:2%">There’s no substitute for blood. When a patient receives blood, it was given in advance by a generous donor.Every day, blood donors help patients of all ages: accident and burn victims, heart surgery and organ transplant patients, and those battling cancer. </p>
-                </div>
-            </div>
-        </div>
-        <br> <br>
-        <h2><b>Some of the Donar</b> </h2>
+								
 
-        <div class="row">
-                   <?php 
-$status=1;
-$sql = "SELECT * from tblblooddonars where status=:status order by rand() limit 6";
-$query = $dbh -> prepare($sql);
-$query->bindParam(':status',$status,PDO::PARAM_STR);
-$query->execute();
-$results=$query->fetchAll(PDO::FETCH_OBJ);
-$cnt=1;
-if($query->rowCount() > 0)
-{
-foreach($results as $result)
-{ ?>
+									<button class="btn btn-primary btn-block" name="login" type="submit">LOGIN</button>
 
-            <div class="col-lg-4 col-sm-6 portfolio-item">
-                <div class="card h-100">
-                    <a href="#"><img class="card-img-top img-fluid" src="images/blood-donor.jpg" alt="" ></a>
-                    <div class="card-block">
-                        <h4 class="card-title"><a href="#"><?php echo htmlentities($result->FullName);?></a></h4>
-<p class="card-text"><b>  Gender :</b> <?php echo htmlentities($result->Gender);?></p>
-<p class="card-text"><b>Blood Group :</b> <?php echo htmlentities($result->BloodGroup);?></p>
-
-                    </div>
-                </div>
-            </div>
-
-            <?php }} ?>
-          
- 
-
-
-
-        </div>
-        <!-- /.row -->
-
-        <!-- Features Section -->
-        <div class="row">
-            <div class="col-lg-6"> <br> <br>
-                <h2> <b>BLOOD GROUPS</b> </h2>
-          <p>  blood group of any human being will mainly fall in any one of the following groups.</p>
-                <ul>
-                
-                
-<li>A positive or A negative</li>
-<li>B positive or B negative</li>
-<li>O positive or O negative</li>
-<li>AB positive or AB negative.</li>
-                </ul>
-                <p>A healthy diet helps ensure a successful blood donation, and also makes you feel better! Check out the following recommended foods to eat prior to your donation.</p>
-            </div>
-            <div class="col-lg-6">
-                <img class="img-fluid rounded" src="images/blood-donor (1).jpg" alt="">
-            </div>
-        </div>
-        <!-- /.row -->
-
-        <hr>
-
-        <!-- Call to Action Section -->
-        <div class="row mb-4">
-            <div class="col-md-8">
-            <h4> <b>UNIVERSAL DONORS AND RECIPIENTS</b> </h4>
-                <p>
-The most common blood type is O, followed by type A.
-
-Type O individuals are often called "universal donors" since their blood can be transfused into persons with any blood type. Those with type AB blood are called "universal recipients" because they can receive blood of any type.</p>
-            </div>
-            <div class="col-md-4">
-                <a class="btn btn-lg btn-secondary btn-block" href="become-donar.php"><b>Become a Donar</b> </a>
-            </div>
-        </div>
-
-    </div>
-    <!-- /.container -->
-
-    <!-- Footer -->
-  <?php include('includes/footer.php');?>
-
-    <!-- Bootstrap core JavaScript -->
-    <script src="vendor/jquery/jquery.min.js"></script>
-    <script src="vendor/tether/tether.min.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- Loading Scripts -->
+	<script src="js/jquery.min.js"></script>
+	<script src="js/bootstrap-select.min.js"></script>
+	<script src="js/bootstrap.min.js"></script>
+	<script src="js/jquery.dataTables.min.js"></script>
+	<script src="js/dataTables.bootstrap.min.js"></script>
+	<script src="js/Chart.min.js"></script>
+	<script src="js/fileinput.js"></script>
+	<script src="js/chartData.js"></script>
+	<script src="js/main.js"></script>
 
 </body>
 
